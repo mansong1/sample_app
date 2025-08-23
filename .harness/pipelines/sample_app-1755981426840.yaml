@@ -19,6 +19,43 @@ pipeline:
                   spec:
                     shell: Sh
                     command: echo "Welcome to Harness CI"
+              - step:
+                  type: Test
+                  name: Test_1
+                  identifier: Test_1
+                  spec:
+                    shell: Sh
+                    command: pip install pytest & cd ./python-tests
+                    intelligenceMode: true
+                  description: Test
+              - step:
+                  name: Compile
+                  identifier: Compile
+                  template:
+                    templateRef: Compile_Application
+                    versionLabel: v0.1
+              - step:
+                  type: BuildAndPushDockerRegistry
+                  name: BuildAndPushDockerRegistry_1
+                  identifier: BuildAndPushDockerRegistry_1
+                  spec:
+                    repo: shippingservice
+                    tags:
+                      - vasu001
+                    registryRef: account.boutique
+              - parallel:
+                  - step:
+                      name: Fortify Scan
+                      identifier: Fortify_Scan
+                      template:
+                        templateRef: fortify
+                        versionLabel: v0.1
+                  - step:
+                      name: owasp
+                      identifier: owasp
+                      template:
+                        templateRef: owasp
+                        versionLabel: v0.1
           platform:
             os: Linux
             arch: Amd64
