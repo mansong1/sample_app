@@ -1,0 +1,14 @@
+inputSet:
+  name: Build_sample_app_1755981438870-pr-trigger-input-set
+  identifier: Build_sample_app_1755981438870prtriggerinputset
+  orgIdentifier: bofa158org
+  projectIdentifier: bofa158ip22
+  pipeline:
+    identifier: Build_sample_app_1755981438870
+    properties:
+      ci:
+        codebase:
+          build:
+            type: PR
+            spec:
+              number: <+trigger.prNumber>
