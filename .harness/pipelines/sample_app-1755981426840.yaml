@@ -35,27 +35,29 @@ pipeline:
                     templateRef: Compile_Application
                     versionLabel: v0.1
               - step:
+                  name: Fortify Scan
+                  identifier: Fortify_Scan
+                  template:
+                    templateRef: fortify
+                    versionLabel: v0.1
+                contextType: Pipeline
+              - step:
                   type: BuildAndPushDockerRegistry
                   name: BuildAndPushDockerRegistry_1
                   identifier: BuildAndPushDockerRegistry_1
                   spec:
-                    repo: shippingservice
+                    connectorRef: dockerhub
+                    repo: nikapp/harness-workshop
                     tags:
                       - vasu001
-                    registryRef: account.boutique
-              - parallel:
-                  - step:
-                      name: Fortify Scan
-                      identifier: Fortify_Scan
-                      template:
-                        templateRef: fortify
-                        versionLabel: v0.1
-                  - step:
-                      name: owasp
-                      identifier: owasp
-                      template:
-                        templateRef: owasp
-                        versionLabel: v0.1
+                    dockerfile: harness/frontend-app/harness-webapp/Dockerfile
+                    context: /harness/frontend-app/harness-webapp
+              - step:
+                  name: owasp
+                  identifier: owasp
+                  template:
+                    templateRef: owasp
+                    versionLabel: v0.1
           platform:
             os: Linux
             arch: Amd64
