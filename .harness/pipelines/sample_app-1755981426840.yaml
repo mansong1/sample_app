@@ -56,8 +56,7 @@ pipeline:
                     repo: nikapp/harness-workshop
                     tags:
                       - vasu001
-                    dockerfile: harness/backend-app/harness-api/Dockerfile
-                    context: /harness/backend-app/harness-api
+                    dockerfile: harness/backend/Dockerfile
               - step:
                   name: owasp
                   identifier: owasp
