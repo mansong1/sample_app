@@ -25,6 +25,128 @@ pipeline:
           runtime:
             type: Cloud
             spec: {}
+    - stage:
+        name: CodeQuality_Check
+        identifier: CodeQuality_Check
+        description: ""
+        type: Approval
+        spec:
+          execution:
+            steps:
+              - step:
+                  name: ApprovalStep
+                  identifier: ApprovalStep
+                  type: HarnessApproval
+                  timeout: 1d
+                  spec:
+                    approvalMessage: |-
+                      Please review the following information
+                      and approve the pipeline progression
+                    includePipelineExecutionHistory: true
+                    approvers:
+                      minimumCount: 1
+                      disallowPipelineExecutor: false
+                      userGroups:
+                        - account.Deployer_Dev
+                    isAutoRejectEnabled: false
+                    approverInputs: []
+        tags: {}
+        delegateSelectors:
+          - bofa
+        when:
+          pipelineStatus: All
+        failureStrategies:
+          - onFailure:
+              errors:
+                - Timeout
+              action:
+                type: MarkAsFailure
+    - stage:
+        name: Dev Deploy
+        identifier: Dev_Deploy
+        description: ""
+        type: Deployment
+        spec:
+          deploymentType: Kubernetes
+          service:
+            serviceRef: backend
+            serviceInputs:
+              serviceDefinition:
+                type: Kubernetes
+                spec:
+                  artifacts:
+                    primary:
+                      primaryArtifactRef: <+input>
+                      sources: <+input>
+            failureStrategies:
+              - onFailure:
+                  errors:
+                    - DelegateProvisioning
+                    - Connectivity
+                    - Authentication
+                    - Authorization
+                    - PolicyEvaluationFailure
+                  action:
+                    type: MarkAsFailure
+          environment:
+            environmentRef: prod
+            deployToAll: false
+            infrastructureDefinitions:
+              - identifier: k8s
+          execution:
+            steps:
+              - stepGroup:
+                  name: Canary Deployment
+                  identifier: canaryDeployment
+                  steps:
+                    - step:
+                        name: Canary Deployment
+                        identifier: canaryDeployment
+                        type: K8sCanaryDeploy
+                        timeout: 10m
+                        spec:
+                          instanceSelection:
+                            type: Count
+                            spec:
+                              count: 1
+                          skipDryRun: false
+                    - step:
+                        name: Canary Delete
+                        identifier: canaryDelete
+                        type: K8sCanaryDelete
+                        timeout: 10m
+                        spec: {}
+              - stepGroup:
+                  name: Primary Deployment
+                  identifier: primaryDeployment
+                  steps:
+                    - step:
+                        name: Rolling Deployment
+                        identifier: rollingDeployment
+                        type: K8sRollingDeploy
+                        timeout: 10m
+                        spec:
+                          skipDryRun: false
+            rollbackSteps:
+              - step:
+                  name: Canary Delete
+                  identifier: rollbackCanaryDelete
+                  type: K8sCanaryDelete
+                  timeout: 10m
+                  spec: {}
+              - step:
+                  name: Rolling Rollback
+                  identifier: rollingRollback
+                  type: K8sRollingRollback
+                  timeout: 10m
+                  spec: {}
+        tags: {}
+        failureStrategies:
+          - onFailure:
+              errors:
+                - AllErrors
+              action:
+                type: StageRollback
   properties:
     ci:
       codebase:
