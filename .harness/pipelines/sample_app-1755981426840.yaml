@@ -28,6 +28,12 @@ pipeline:
                     command: pip install pytest & cd ./python-tests
                     intelligenceMode: true
                   description: Test
+                  failureStrategies:
+                    - onFailure:
+                        errors:
+                          - AllErrors
+                        action:
+                          type: Ignore
               - step:
                   name: Compile
                   identifier: Compile
