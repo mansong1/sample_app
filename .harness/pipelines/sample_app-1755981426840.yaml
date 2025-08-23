@@ -53,10 +53,11 @@ pipeline:
                   identifier: BuildAndPushDockerRegistry_1
                   spec:
                     connectorRef: dockerhub
-                    repo: nikapp/harness-workshop
+                    repo: nikpap/harness-workshop
                     tags:
-                      - vasu001
-                    dockerfile: harness/backend/Dockerfile
+                      - <+variable.username>-<+pipeline.sequenceId>
+                    dockerfile: /harness/frontend-app/harness-webapp/Dockerfile
+                    context: /harness/frontend-app/harness-webapp
               - step:
                   name: owasp
                   identifier: owasp
