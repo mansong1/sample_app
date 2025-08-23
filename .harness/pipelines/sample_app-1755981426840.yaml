@@ -19,6 +19,30 @@ pipeline:
                   spec:
                     shell: Sh
                     command: echo "Welcome to Harness CI"
+              - step:
+                  type: Test
+                  name: Test_1
+                  identifier: Test_1
+                  spec:
+                    shell: Sh
+                    command: pip install pytest & cd ./python-tests
+                    intelligenceMode: true
+              - stepGroup:
+                  name: Compiler
+                  identifier: Compiler
+                  steps:
+                    - step:
+                        name: CompileMe
+                        identifier: CompileMe
+                        template:
+                          templateRef: Compile_Application
+                          versionLabel: v0.1
+              - step:
+                  name: owasp
+                  identifier: owasp
+                  template:
+                    templateRef: owasp
+                    versionLabel: v0.1
           platform:
             os: Linux
             arch: Amd64
