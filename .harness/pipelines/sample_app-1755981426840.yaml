@@ -453,6 +453,6 @@ pipeline:
   properties:
     ci:
       codebase:
-        connectorRef: account.Github
-        repoName: sample_app
+        repoName: harnessrepo
         build: <+input>
+        sparseCheckout: []
