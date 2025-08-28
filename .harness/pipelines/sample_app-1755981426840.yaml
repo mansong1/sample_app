@@ -367,8 +367,8 @@ pipeline:
                     approverInputs: []
         tags: {}
     - stage:
-        name: PROD Deploy
-        identifier: PROD_Deploy
+        name: Prod Deploy
+        identifier: Prod_Deploy
         description: ""
         type: Deployment
         spec:
@@ -388,61 +388,24 @@ pipeline:
             deployToAll: false
             infrastructureDefinitions:
               - identifier: k8s
-            failureStrategies:
-              - onFailure:
-                  errors:
-                    - Authentication
-                    - Connectivity
-                    - Timeout
-                    - Authorization
-                    - Verification
-                    - DelegateProvisioning
-                    - Unknown
-                    - PolicyEvaluationFailure
-                    - InputTimeoutError
-                    - DelegateRestart
-                  action:
-                    type: StageRollback
           execution:
             steps:
               - step:
-                  type: HarnessApproval
-                  name: HarnessApproval_1
-                  identifier: HarnessApproval_1
-                  spec:
-                    approvalMessage: Please review the following information and approve the pipeline progression
-                    includePipelineExecutionHistory: true
-                    isAutoRejectEnabled: false
-                    approvers:
-                      userGroups:
-                        - account.Deployer_PROD
-                      minimumCount: 1
-                      disallowPipelineExecutor: false
-                    approverInputs: []
-                  timeout: 1d
-              - step:
-                  name: Stage Deployment
-                  identifier: stageDeployment
-                  type: K8sBlueGreenDeploy
+                  name: Rollout Deployment
+                  identifier: rolloutDeployment
+                  type: K8sRollingDeploy
                   timeout: 10m
                   spec:
                     skipDryRun: false
                     pruningEnabled: false
-              - step:
-                  name: Swap primary with stage service
-                  identifier: bgSwapServices
-                  type: K8sBGSwapServices
-                  timeout: 20m
-                  spec:
-                    skipDryRun: false
             rollbackSteps:
               - step:
-                  name: Swap primary with stage service
-                  identifier: rollbackBgSwapServices
-                  type: K8sBGSwapServices
+                  name: Rollback Rollout Deployment
+                  identifier: rollbackRolloutDeployment
+                  type: K8sRollingRollback
                   timeout: 10m
                   spec:
-                    skipDryRun: false
+                    pruningEnabled: false
         tags: {}
         failureStrategies:
           - onFailure:
