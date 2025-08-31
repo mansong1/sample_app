@@ -1,10 +1,53 @@
 inputSet:
   name: Build_sample_app_1755981438870-pr-trigger-input-set
+  tags: {}
   identifier: Build_sample_app_1755981438870prtriggerinputset
   orgIdentifier: bofa158org
   projectIdentifier: bofa158ip22
   pipeline:
     identifier: Build_sample_app_1755981438870
+    stages:
+      - stage:
+          identifier: Dev_Deploy
+          type: Deployment
+          spec:
+            service:
+              serviceInputs:
+                serviceDefinition:
+                  type: Kubernetes
+                  spec:
+                    artifacts:
+                      primary:
+                        primaryArtifactRef: <+input>
+                        sources: <+input>
+      - stage:
+          identifier: UAT_Deploy
+          type: Deployment
+          spec:
+            services:
+              values:
+                - serviceInputs:
+                    serviceDefinition:
+                      type: Kubernetes
+                      spec:
+                        artifacts:
+                          primary:
+                            primaryArtifactRef: <+input>
+                            sources: <+input>
+                  serviceRef: backend
+      - stage:
+          identifier: Prod_Deploy
+          type: Deployment
+          spec:
+            service:
+              serviceInputs:
+                serviceDefinition:
+                  type: Kubernetes
+                  spec:
+                    artifacts:
+                      primary:
+                        primaryArtifactRef: <+input>
+                        sources: <+input>
     properties:
       ci:
         codebase:
