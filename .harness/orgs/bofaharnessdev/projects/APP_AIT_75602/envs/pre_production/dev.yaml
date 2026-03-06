@@ -1,0 +1,6 @@
+environment:
+  name: dev
+  identifier: dev
+  orgIdentifier: bofaharnessdev
+  projectIdentifier: APP_AIT_75602
+  type: PreProduction
